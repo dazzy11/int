@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InterviewAI — Coding Round</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- CodeMirror -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+
+  <style>
+    .main { padding: 48px 0; }
+
+    .problem-tab-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .problem-tab {
+      padding: 8px 20px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+
+    .problem-tab.active {
+      border-color: var(--amber);
+      color: var(--amber);
+      background: var(--amber-glow);
+    }
+
+    .split-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .split-layout { grid-template-columns: 1fr; }
+    }
+
+    /* CodeMirror overrides */
+    .CodeMirror {
+      height: 340px;
+      border-radius: 0 0 var(--radius) var(--radius);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .editor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #1e1e2e;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: var(--radius) var(--radius) 0 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .editor-lang {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--amber);
+      font-weight: 700;
+    }
+
+    .output-box {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      min-height: 80px;
+      white-space: pre-wrap;
+      color: #7ee787;
+      margin-top: 12px;
+    }
+
+    .output-box.error { color: #f47067; }
+    .output-box.empty { color: var(--text-muted); }
+
+    .problem-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      white-space: pre-wrap;
+      padding: 20px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+
+    .eval-result {
+      margin-top: 16px;
+      padding: 20px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      animation: fadeUp 0.3s ease;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <nav class="navbar">
+    <a class="nav-brand" href="dashboard.html"><span class="dot"></span> InterviewAI</a>
+    <div class="nav-info">Role: <span id="nav-job">—</span> · <span id="nav-company">—</span></div>
+  </nav>
+
+  <div class="container-wide main">
+
+    <!-- Steps -->
+    <div class="steps fade-in" style="padding:0 24px;">
+      <div class="step done"><span class="step-num">✓</span> Aptitude</div>
+      <div class="step-line"></div>
+      <div class="step active"><span class="step-num">2</span> Coding</div>
+      <div class="step-line"></div>
+      <div class="step"><span class="step-num">3</span> Interview</div>
+    </div>
+
+    <div style="padding:32px 24px 0;">
+      <p class="section-label">// ROUND 2</p>
+      <h2 style="margin-bottom:24px;">Coding Round</h2>
+
+      <!-- Loading -->
+      <div id="loading-state" style="text-align:center;padding:60px 0;">
+        <div class="spinner" style="width:32px;height:32px;margin:0 auto 16px;"></div>
+        <p style="color:var(--text-muted);">Loading problems...</p>
+      </div>
+
+      <!-- Problem tabs -->
+      <div id="coding-ui" class="hidden">
+        <div class="problem-tab-bar" id="tab-bar"></div>
+
+        <div class="split-layout">
+
+          <!-- Left: Problem + Output -->
+          <div>
+            <div class="section-label" style="margin-bottom:8px;">Problem Description</div>
+            <div class="problem-desc" id="problem-desc"></div>
+
+            <!-- Output -->
+            <div class="section-label" style="margin-bottom:8px;">Output</div>
+            <div class="output-box empty" id="output-box">// Run your code to see output</div>
+
+            <!-- Eval result -->
+            <div id="eval-result" class="hidden"></div>
+          </div>
+
+          <!-- Right: Editor + Controls -->
+          <div>
+            <div class="section-label" style="margin-bottom:8px;">Code Editor</div>
+
+            <div class="editor-header">
+              <div class="editor-lang">🐍 Python</div>
+              <span>CodeMirror · Dracula Theme</span>
+            </div>
+            <textarea id="code-editor"></textarea>
+
+            <div class="btn-row">
+              <button class="btn btn-ghost" id="run-btn" onclick="runCode()">▶ Run Code</button>
+              <button class="btn btn-primary" id="submit-btn" onclick="submitCode()">Submit →</button>
+            </div>
+
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+              Code executes on the backend. Max 10s runtime.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Score Modal -->
+<div id="score-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:200;padding:24px;">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:40px;max-width:480px;width:100%;text-align:center;animation:fadeUp .3s ease;">
+    <div id="modal-ring"></div>
+    <h2 id="modal-heading" style="margin-bottom:8px;"></h2>
+    <p id="modal-feedback" style="color:var(--text-secondary);font-size:13px;margin-bottom:24px;text-align:left;"></p>
+    <div id="modal-actions"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  let problems = [];
+  let activeProblemIdx = 0;
+  let editors = []; // CodeMirror instances per problem
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    requireAuth();
+    await loadProblems();
+  });
+
+  async function loadProblems() {
+    const sid = getSession("session_id");
+    try {
+      const { ok, data } = await apiFetch(`/coding/problems?session_id=${sid}`);
+      if (!ok) throw new Error(data.error);
+      problems = data.problems;
+      setupUI();
+    } catch (e) {
+      document.getElementById("loading-state").innerHTML =
+        `<p style="color:var(--red);">Failed: ${e.message}</p>`;
+    }
+  }
+
+  function setupUI() {
+    document.getElementById("loading-state").classList.add("hidden");
+    document.getElementById("coding-ui").classList.remove("hidden");
+
+    const tabBar = document.getElementById("tab-bar");
+    tabBar.innerHTML = "";
+
+    problems.forEach((p, i) => {
+      const tab = document.createElement("div");
+      tab.className = "problem-tab" + (i === 0 ? " active" : "");
+      tab.textContent = `Problem ${i+1}: ${p.title}`;
+      tab.onclick = () => switchProblem(i);
+      tabBar.appendChild(tab);
+    });
+
+    // Init CodeMirror
+    const textarea = document.getElementById("code-editor");
+    const cm = CodeMirror.fromTextArea(textarea, {
+      mode: "python",
+      theme: "dracula",
+      lineNumbers: true,
+      indentUnit: 4,
+      tabSize: 4,
+      indentWithTabs: false,
+      lineWrapping: false,
+      autofocus: true
+    });
+    editors.push(cm);
+
+    switchProblem(0);
+  }
+
+  function switchProblem(idx) {
+    activeProblemIdx = idx;
+    const p = problems[idx];
+
+    // Update tabs
+    document.querySelectorAll(".problem-tab").forEach((t, i) => {
+      t.classList.toggle("active", i === idx);
+    });
+
+    // Update description
+    document.getElementById("problem-desc").textContent = p.description;
+
+    // Set starter code
+    if (editors[0]) {
+      editors[0].setValue(p.starter_code || "# Write your solution here\n");
+    }
+
+    // Clear output
+    const out = document.getElementById("output-box");
+    out.textContent = "// Run your code to see output";
+    out.className = "output-box empty";
+    document.getElementById("eval-result").classList.add("hidden");
+  }
+
+  function getCode() {
+    return editors[0] ? editors[0].getValue() : "";
+  }
+
+  async function runCode() {
+    const btn = document.getElementById("run-btn");
+    const out = document.getElementById("output-box");
+
+    setButtonLoading(btn, true);
+    out.textContent = "Running...";
+    out.className = "output-box";
+
+    try {
+      const { data } = await apiFetch("/coding/run", {
+        method: "POST",
+        body: { code: getCode() }
+      });
+
+      if (data.success) {
+        out.textContent = data.stdout || "(no output)";
+        out.className = "output-box";
+      } else {
+        out.textContent = data.stderr || "Runtime error";
+        out.className = "output-box error";
+      }
+    } catch (e) {
+      out.textContent = "Error: " + e.message;
+      out.className = "output-box error";
+    } finally {
+      setButtonLoading(btn, false);
+    }
+  }
+
+  async function submitCode() {
+    const btn = document.getElementById("submit-btn");
+    setButtonLoading(btn, true);
+
+    const sid = getSession("session_id");
+    const problem = problems[activeProblemIdx];
+
+    try {
+      const { ok, data } = await apiFetch("/coding/submit", {
+        method: "POST",
+        body: {
+          session_id: sid,
+          problem_id: problem.id,
+          code: getCode()
+        }
+      });
+
+      if (!ok) throw new Error(data.error);
+      showScoreModal(data);
+    } catch (e) {
+      alert("Evaluation failed: " + e.message);
+    } finally {
+      setButtonLoading(btn, false);
+    }
+  }
+
+  function showScoreModal(data) {
+    const { score, feedback } = data;
+    const modal = document.getElementById("score-modal");
+    modal.style.display = "flex";
+
+    document.getElementById("modal-ring").innerHTML = buildScoreRing();
+    setTimeout(() => animateRing(document.querySelector(".score-ring"), score), 100);
+
+    document.getElementById("modal-heading").textContent =
+      score >= 70 ? "✅ Code Evaluated!" : "📝 Needs Improvement";
+    document.getElementById("modal-feedback").textContent = feedback;
+
+    const actions = document.getElementById("modal-actions");
+    if (score >= 70) {
+      setSession("coding_passed", true);
+      actions.innerHTML = `<a href="interview.html" class="btn btn-primary btn-lg btn-full">Proceed to Mock Interview →</a>`;
+    } else {
+      actions.innerHTML = `
+        <button class="btn btn-outline btn-full" onclick="document.getElementById('score-modal').style.display='none'">
+          Try Again
+        </button>`;
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InterviewAI — Mock Interview</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .main { padding: 48px 0; }
+
+    /* Interview layout */
+    .interview-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .interview-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Interviewer avatar */
+    .avatar-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+    }
+
+    .avatar-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--amber-glow), var(--bg-hover));
+      border: 2px solid var(--amber-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .avatar-circle .speaking-ring {
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid var(--amber);
+      opacity: 0;
+      animation: speakRing 1.5s ease-in-out infinite;
+    }
+
+    @keyframes speakRing {
+      0%, 100% { opacity: 0; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.15); }
+    }
+
+    .avatar-circle.speaking .speaking-ring { opacity: 1; }
+
+    /* Voice recorder */
+    .recorder-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .record-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 0 auto 12px;
+    }
+
+    .record-btn:hover { border-color: var(--amber); background: var(--amber-glow); }
+    .record-btn.recording {
+      border-color: var(--red);
+      background: var(--red-dim);
+      animation: pulseRec 1s ease-in-out infinite;
+    }
+
+    @keyframes pulseRec {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+      50% { box-shadow: 0 0 0 10px rgba(239,68,68,0.15); }
+    }
+
+    .rec-status {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .rec-status.recording { color: var(--red); }
+
+    /* Transcription display */
+    .transcript-box {
+      padding: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      min-height: 80px;
+      color: var(--text-secondary);
+      margin: 12px 0;
+    }
+
+    /* Score tracker */
+    .score-tracker {
+      padding: 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .score-row:last-child { border-bottom: none; }
+    .score-val { font-weight: 700; color: var(--amber); }
+
+    /* Text answer fallback */
+    .text-answer-area {
+      width: 100%;
+      min-height: 100px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      padding: 12px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .text-answer-area:focus { border-color: var(--amber); }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <nav class="navbar">
+    <a class="nav-brand" href="dashboard.html"><span class="dot"></span> InterviewAI</a>
+    <div class="nav-info">Role: <span id="nav-job">—</span> · <span id="nav-company">—</span></div>
+  </nav>
+
+  <div class="container-wide main">
+    <div style="padding: 0 24px;">
+
+      <!-- Steps -->
+      <div class="steps fade-in">
+        <div class="step done"><span class="step-num">✓</span> Aptitude</div>
+        <div class="step-line"></div>
+        <div class="step done"><span class="step-num">✓</span> Coding</div>
+        <div class="step-line"></div>
+        <div class="step active"><span class="step-num">3</span> Interview</div>
+      </div>
+
+      <p class="section-label">// ROUND 3</p>
+      <h2 style="margin-bottom:6px;">AI Mock Interview</h2>
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:32px;">
+        Your AI interviewer will ask questions. Respond via voice or text.
+      </p>
+
+      <!-- Start screen -->
+      <div id="start-screen" class="card card-amber" style="text-align:center;padding:48px;">
+        <div style="font-size:3rem;margin-bottom:16px;">🎙</div>
+        <h3 style="margin-bottom:8px;">Ready to begin?</h3>
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:24px;">
+          Your interviewer will introduce the first question.<br>
+          Make sure your microphone is connected and browser permissions are granted.
+        </p>
+        <button class="btn btn-primary btn-lg" id="start-btn" onclick="startInterview()">
+          Start Interview →
+        </button>
+      </div>
+
+      <!-- Interview UI (hidden until started) -->
+      <div id="interview-ui" class="hidden">
+        <div class="interview-layout">
+
+          <!-- Left: Chat window -->
+          <div>
+            <div class="section-label" style="margin-bottom:8px;">Interview Session</div>
+            <div class="chat-window" id="chat-window"></div>
+
+            <!-- Feedback box (shown after each answer) -->
+            <div id="feedback-display" class="feedback-box hidden">
+              <h4>AI Feedback</h4>
+              <p id="feedback-text"></p>
+              <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+                <span style="font-size:12px;color:var(--text-muted);">Answer Score:</span>
+                <span id="answer-score-badge" class="badge badge-amber"></span>
+              </div>
+            </div>
+
+            <!-- Answer input area -->
+            <div id="answer-section" style="margin-top:16px;">
+              <div class="section-label" style="margin-bottom:8px;">Your Answer</div>
+
+              <!-- Tab switcher: Voice / Text -->
+              <div style="display:flex;gap:8px;margin-bottom:12px;">
+                <button class="btn btn-ghost btn-sm" id="tab-voice" onclick="switchTab('voice')">🎙 Voice</button>
+                <button class="btn btn-ghost btn-sm" id="tab-text"  onclick="switchTab('text')">⌨ Text</button>
+              </div>
+
+              <!-- Voice panel -->
+              <div id="voice-panel">
+                <div class="recorder-panel">
+                  <div class="record-btn" id="record-btn" onclick="toggleRecording()">🎙</div>
+                  <div class="rec-status" id="rec-status">Click to start recording</div>
+                  <div class="transcript-box" id="transcript-box">
+                    Your transcribed answer will appear here...
+                  </div>
+                  <button class="btn btn-outline btn-sm btn-full" id="send-voice-btn"
+                          onclick="sendVoiceAnswer()" style="display:none;">
+                    Send Answer →
+                  </button>
+                </div>
+              </div>
+
+              <!-- Text panel -->
+              <div id="text-panel" class="hidden">
+                <textarea
+                  class="text-answer-area"
+                  id="text-answer"
+                  placeholder="Type your answer here..."
+                ></textarea>
+                <button class="btn btn-primary" style="margin-top:8px;"
+                        onclick="sendTextAnswer()">
+                  Submit Answer →
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Info panel -->
+          <div>
+            <!-- Interviewer avatar -->
+            <div class="avatar-box">
+              <div class="avatar-circle" id="avatar-circle">
+                🤖
+                <div class="speaking-ring"></div>
+              </div>
+              <div style="font-family:var(--font-display);font-weight:700;">AI Interviewer</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;" id="interviewer-company">
+                <span id="nav-company2">—</span>
+              </div>
+            </div>
+
+            <!-- Score tracker -->
+            <div class="score-tracker">
+              <div class="section-label" style="margin-bottom:12px;">Session Stats</div>
+              <div class="score-row">
+                <span>Questions Asked</span>
+                <span class="score-val" id="stat-questions">0</span>
+              </div>
+              <div class="score-row">
+                <span>Avg Answer Score</span>
+                <span class="score-val" id="stat-avg">—</span>
+              </div>
+              <div class="score-row">
+                <span>Last Score</span>
+                <span class="score-val" id="stat-last">—</span>
+              </div>
+            </div>
+
+            <button class="btn btn-outline btn-full" style="margin-top:16px;" onclick="endInterview()">
+              End Interview
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  // ─── State ───────────────────────────────────────────────────
+  let isRecording = false;
+  let mediaRecorder = null;
+  let audioChunks = [];
+  let questionCount = 0;
+  let scoreSum = 0;
+  let lastTranscript = "";
+
+  window.addEventListener("DOMContentLoaded", () => {
+    requireAuth();
+    document.getElementById("nav-company2").textContent =
+      getSession("company") || "—";
+  });
+
+  // ─── Start interview ─────────────────────────────────────────
+  async function startInterview() {
+    const btn = document.getElementById("start-btn");
+    setButtonLoading(btn, true);
+    const sid = getSession("session_id");
+
+    try {
+      const { ok, data } = await apiFetch("/interview/start", {
+        method: "POST",
+        body: { session_id: sid }
+      });
+      if (!ok) throw new Error(data.error);
+
+      document.getElementById("start-screen").classList.add("hidden");
+      document.getElementById("interview-ui").classList.remove("hidden");
+
+      questionCount++;
+      updateStats();
+      addInterviewerBubble(data.question);
+      playInterviewerAudio(data.question);
+    } catch (e) {
+      alert("Could not start interview: " + e.message);
+      setButtonLoading(btn, false);
+    }
+  }
+
+  // ─── Chat helpers ────────────────────────────────────────────
+  function addInterviewerBubble(text) {
+    const win = document.getElementById("chat-window");
+    const bubble = document.createElement("div");
+    bubble.className = "chat-bubble interviewer";
+    bubble.textContent = text;
+    win.appendChild(bubble);
+    win.scrollTop = win.scrollHeight;
+  }
+
+  function addCandidateBubble(text) {
+    const win = document.getElementById("chat-window");
+    const bubble = document.createElement("div");
+    bubble.className = "chat-bubble candidate";
+    bubble.textContent = text;
+    win.appendChild(bubble);
+    win.scrollTop = win.scrollHeight;
+  }
+
+  // ─── Play TTS audio ──────────────────────────────────────────
+  async function playInterviewerAudio(text) {
+    const avatar = document.getElementById("avatar-circle");
+    avatar.classList.add("speaking");
+    const audio = await playTTS(text);
+    if (audio) {
+      audio.onended = () => avatar.classList.remove("speaking");
+    } else {
+      setTimeout(() => avatar.classList.remove("speaking"), 2000);
+    }
+  }
+
+  // ─── Tab switch: voice / text ────────────────────────────────
+  function switchTab(tab) {
+    document.getElementById("voice-panel").classList.toggle("hidden", tab !== "voice");
+    document.getElementById("text-panel").classList.toggle("hidden", tab !== "text");
+    document.getElementById("tab-voice").classList.toggle("btn-outline", tab === "voice");
+    document.getElementById("tab-text").classList.toggle("btn-outline",  tab === "text");
+  }
+
+  // ─── Voice recording ─────────────────────────────────────────
+  async function toggleRecording() {
+    if (!isRecording) await startRecording();
+    else stopRecording();
+  }
+
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+
+      mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+      mediaRecorder.onstop = handleAudioStop;
+      mediaRecorder.start();
+      isRecording = true;
+
+      document.getElementById("record-btn").classList.add("recording");
+      document.getElementById("record-btn").textContent = "⏹";
+      document.getElementById("rec-status").textContent = "Recording... click to stop";
+      document.getElementById("rec-status").classList.add("recording");
+    } catch (e) {
+      alert("Microphone access denied. Please allow microphone permission.");
+    }
+  }
+
+  function stopRecording() {
+    mediaRecorder?.stop();
+    isRecording = false;
+    document.getElementById("record-btn").classList.remove("recording");
+    document.getElementById("record-btn").textContent = "🎙";
+    document.getElementById("rec-status").textContent = "Processing audio...";
+    document.getElementById("rec-status").classList.remove("recording");
+  }
+
+  async function handleAudioStop() {
+    const blob = new Blob(audioChunks, { type: "audio/webm" });
+    const sid = getSession("session_id");
+
+    const formData = new FormData();
+    formData.append("audio", blob, "recording.webm");
+    formData.append("session_id", sid);
+
+    try {
+      const { ok, data } = await apiFetch("/interview/transcribe", {
+        method: "POST",
+        formData
+      });
+
+      if (ok && data.text) {
+        lastTranscript = data.text;
+        document.getElementById("transcript-box").textContent = data.text;
+        document.getElementById("send-voice-btn").style.display = "block";
+        document.getElementById("rec-status").textContent = "Transcription ready";
+      } else {
+        document.getElementById("rec-status").textContent = "Transcription failed";
+      }
+    } catch (e) {
+      document.getElementById("rec-status").textContent = "Error: " + e.message;
+    }
+  }
+
+  async function sendVoiceAnswer() {
+    if (!lastTranscript) return;
+    await submitAnswer(lastTranscript);
+    lastTranscript = "";
+    document.getElementById("transcript-box").textContent = "Your transcribed answer will appear here...";
+    document.getElementById("send-voice-btn").style.display = "none";
+    document.getElementById("rec-status").textContent = "Click to start recording";
+  }
+
+  async function sendTextAnswer() {
+    const text = document.getElementById("text-answer").value.trim();
+    if (!text) return;
+    document.getElementById("text-answer").value = "";
+    await submitAnswer(text);
+  }
+
+  // ─── Submit answer to backend ────────────────────────────────
+  async function submitAnswer(answerText) {
+    addCandidateBubble(answerText);
+
+    // Show loading bubble
+    const win = document.getElementById("chat-window");
+    const loadingBubble = document.createElement("div");
+    loadingBubble.className = "chat-bubble interviewer";
+    loadingBubble.innerHTML = '<span class="spinner"></span> Thinking...';
+    win.appendChild(loadingBubble);
+    win.scrollTop = win.scrollHeight;
+
+    const sid = getSession("session_id");
+
+    try {
+      const { ok, data } = await apiFetch("/interview/answer", {
+        method: "POST",
+        body: { session_id: sid, answer: answerText }
+      });
+
+      loadingBubble.remove();
+
+      if (!ok) throw new Error(data.error);
+
+      // Show feedback
+      if (data.feedback) {
+        document.getElementById("feedback-text").textContent = data.feedback;
+        document.getElementById("answer-score-badge").textContent = `${data.score}/10`;
+        document.getElementById("feedback-display").classList.remove("hidden");
+
+        // Update stats
+        scoreSum += data.score;
+        questionCount++;
+        updateStats(data.score);
+      }
+
+      // Next question
+      if (data.question) {
+        addInterviewerBubble(data.question);
+        playInterviewerAudio(data.question);
+      }
+
+    } catch (e) {
+      loadingBubble.remove();
+      const errBubble = document.createElement("div");
+      errBubble.className = "chat-bubble interviewer";
+      errBubble.style.color = "var(--red)";
+      errBubble.textContent = "Error: " + e.message;
+      win.appendChild(errBubble);
+    }
+  }
+
+  function updateStats(lastScore) {
+    document.getElementById("stat-questions").textContent = questionCount;
+    if (scoreSum > 0 && questionCount > 0) {
+      const avg = (scoreSum / (questionCount)).toFixed(1);
+      document.getElementById("stat-avg").textContent = `${avg}/10`;
+    }
+    if (lastScore !== undefined) {
+      document.getElementById("stat-last").textContent = `${lastScore}/10`;
+    }
+  }
+
+  function endInterview() {
+    if (!confirm("End the interview and return to dashboard?")) return;
+    window.location.href = "dashboard.html";
+  }
+
+  // Init tab
+  switchTab("voice");
+</script>
+</body>
+</html>

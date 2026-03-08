@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InterviewAI — Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .main { padding: 48px 0; }
+
+    .dash-header { margin-bottom: 48px; }
+    .dash-header .greeting { color: var(--text-muted); font-size: 12px; margin-bottom: 4px; }
+
+    /* Upload zone */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg-surface);
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--amber);
+      background: var(--amber-glow);
+    }
+    .upload-zone .upload-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .upload-zone h3 { margin-bottom: 6px; }
+    .upload-zone p { font-size: 12px; color: var(--text-muted); }
+    .upload-zone input[type="file"] { display: none; }
+
+    .resume-preview {
+      padding: 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 12px;
+      color: var(--text-secondary);
+      max-height: 140px;
+      overflow-y: auto;
+      margin-top: 12px;
+      white-space: pre-wrap;
+      font-family: var(--font-mono);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* Step pill */
+    .step-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: var(--amber-glow);
+      border: 1px solid var(--amber-dim);
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--amber);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ─── Navbar ─────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a class="nav-brand" href="dashboard.html">
+      <span class="dot"></span>
+      InterviewAI
+    </a>
+    <div class="nav-info">
+      Role: <span id="nav-job">—</span>
+      &nbsp;·&nbsp;
+      Company: <span id="nav-company">—</span>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="container main fade-in">
+
+      <!-- Header -->
+      <div class="dash-header">
+        <p class="greeting">// DASHBOARD</p>
+        <h1>Set Up Your Session</h1>
+        <p style="color:var(--text-secondary);margin-top:8px;font-size:14px;">
+          Upload your resume and choose your target role to begin.
+        </p>
+      </div>
+
+      <!-- STEP 1: Resume Upload -->
+      <div class="step-pill">① Resume</div>
+      <div class="card card-amber" style="margin-bottom:32px;">
+        <h3 style="margin-bottom:4px;">Upload Your Resume</h3>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">PDF format only · Text will be extracted for AI analysis</p>
+
+        <div id="alert-resume" class="alert hidden"></div>
+
+        <div
+          class="upload-zone"
+          id="upload-zone"
+          onclick="document.getElementById('resume-file').click()"
+        >
+          <div class="upload-icon">📄</div>
+          <h3>Drop your PDF here</h3>
+          <p>or click to browse files</p>
+          <input type="file" id="resume-file" accept=".pdf" onchange="handleResumeUpload(event)">
+        </div>
+
+        <div id="resume-status" class="hidden" style="margin-top:12px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span class="badge badge-green">✓ Resume Uploaded</span>
+            <span id="resume-filename" style="font-size:12px;color:var(--text-secondary);"></span>
+          </div>
+          <div id="resume-preview" class="resume-preview hidden"></div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="togglePreview()">
+            Toggle Preview
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Job & Company -->
+      <div class="step-pill">② Role & Company</div>
+      <div class="card" style="margin-bottom:32px;">
+        <h3 style="margin-bottom:4px;">Target Role & Company</h3>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">Search for your job role then select a company</p>
+
+        <div class="grid-2">
+
+          <!-- Job Search -->
+          <div>
+            <div class="form-label" style="margin-bottom:8px;">Job Role</div>
+            <div class="dropdown-wrap">
+              <input
+                id="job-search"
+                class="input"
+                type="text"
+                placeholder="Search: Software Engineer..."
+                oninput="filterJobs(this.value)"
+                onfocus="showJobDropdown()"
+                autocomplete="off"
+              />
+              <div id="job-dropdown" class="dropdown-list hidden"></div>
+            </div>
+            <div id="selected-job" style="margin-top:8px;display:none;">
+              <span class="badge badge-amber" id="selected-job-badge"></span>
+            </div>
+          </div>
+
+          <!-- Company Selection -->
+          <div>
+            <div class="form-label" style="margin-bottom:8px;">Company</div>
+            <p id="company-hint" style="font-size:12px;color:var(--text-muted);">
+              Select a job role first
+            </p>
+            <div id="company-grid" class="company-grid hidden"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- STEP 3: Interview Rounds -->
+      <div id="rounds-section" class="hidden">
+        <div class="step-pill">③ Interview Rounds</div>
+        <div class="card">
+          <h3 style="margin-bottom:4px;">Choose Your Round</h3>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">
+            Complete rounds in order to unlock the next stage
+          </p>
+          <div class="round-cards" id="round-cards">
+
+            <div class="round-card" onclick="startRound('aptitude')">
+              <div class="round-icon">📝</div>
+              <div class="round-title">Round 1</div>
+              <div style="color:var(--amber);font-size:12px;margin-bottom:4px;font-weight:700;">Aptitude Test</div>
+              <div class="round-desc">15 MCQ questions · 75% to advance</div>
+            </div>
+
+            <div class="round-card" id="round-coding" style="opacity:0.4;pointer-events:none;">
+              <div class="round-icon">💻</div>
+              <div class="round-title">Round 2</div>
+              <div style="color:var(--blue);font-size:12px;margin-bottom:4px;font-weight:700;">Coding Round</div>
+              <div class="round-desc">2 coding problems · Live execution</div>
+            </div>
+
+            <div class="round-card" id="round-interview" style="opacity:0.4;pointer-events:none;">
+              <div class="round-icon">🎙</div>
+              <div class="round-title">Round 3</div>
+              <div style="color:var(--green);font-size:12px;margin-bottom:4px;font-weight:700;">AI Mock Interview</div>
+              <div class="round-desc">Voice-based · Real-time AI feedback</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  let allJobs = [];
+  let selectedJob = null;
+  let selectedCompany = null;
+
+  // ─── Init ──────────────────────────────────────────────────
+  window.addEventListener("DOMContentLoaded", async () => {
+    requireAuth();
+    await loadJobs();
+
+    // Unlock rounds if already completed in session
+    if (getSession("aptitude_passed")) unlockRound("coding");
+    if (getSession("coding_passed"))   unlockRound("interview");
+  });
+
+  // ─── Load jobs from backend ────────────────────────────────
+  async function loadJobs() {
+    const { data } = await apiFetch("/jobs");
+    allJobs = data.jobs || [];
+  }
+
+  // ─── Job search dropdown ───────────────────────────────────
+  function filterJobs(query) {
+    const dropdown = document.getElementById("job-dropdown");
+    if (!query.trim()) { dropdown.classList.add("hidden"); return; }
+
+    const matches = allJobs.filter(j => j.toLowerCase().includes(query.toLowerCase()));
+    renderJobDropdown(matches);
+  }
+
+  function showJobDropdown() {
+    renderJobDropdown(allJobs);
+  }
+
+  function renderJobDropdown(items) {
+    const dropdown = document.getElementById("job-dropdown");
+    dropdown.innerHTML = "";
+    if (!items.length) { dropdown.classList.add("hidden"); return; }
+
+    items.forEach(job => {
+      const item = document.createElement("div");
+      item.className = "dropdown-item";
+      item.textContent = job;
+      item.onclick = () => selectJob(job);
+      dropdown.appendChild(item);
+    });
+    dropdown.classList.remove("hidden");
+  }
+
+  async function selectJob(job) {
+    selectedJob = job;
+    document.getElementById("job-search").value = job;
+    document.getElementById("job-dropdown").classList.add("hidden");
+
+    const badge = document.getElementById("selected-job-badge");
+    badge.textContent = job;
+    document.getElementById("selected-job").style.display = "block";
+
+    // Load companies for this job
+    await loadCompanies(job);
+    checkCanProceed();
+  }
+
+  // ─── Load & render companies ───────────────────────────────
+  async function loadCompanies(job) {
+    const { data } = await apiFetch(`/companies?job=${encodeURIComponent(job)}`);
+    const grid = document.getElementById("company-grid");
+    const hint = document.getElementById("company-hint");
+
+    grid.innerHTML = "";
+    selectedCompany = null;
+
+    data.companies.forEach(c => {
+      const card = document.createElement("div");
+      card.className = "company-card";
+      card.textContent = c;
+      card.onclick = () => selectCompany(c, card);
+      grid.appendChild(card);
+    });
+
+    hint.style.display = "none";
+    grid.classList.remove("hidden");
+  }
+
+  function selectCompany(company, cardEl) {
+    selectedCompany = company;
+    document.querySelectorAll(".company-card").forEach(c => c.classList.remove("selected"));
+    cardEl.classList.add("selected");
+    checkCanProceed();
+    saveSetup();
+  }
+
+  // ─── Save setup to session & backend ──────────────────────
+  async function saveSetup() {
+    if (!selectedJob || !selectedCompany) return;
+
+    const sid = getSession("session_id");
+    setSession("job_role", selectedJob);
+    setSession("company", selectedCompany);
+
+    // Update nav
+    document.getElementById("nav-job").textContent = selectedJob;
+    document.getElementById("nav-company").textContent = selectedCompany;
+
+    await apiFetch("/session/setup", {
+      method: "POST",
+      body: { session_id: sid, job_role: selectedJob, company: selectedCompany }
+    });
+  }
+
+  function checkCanProceed() {
+    if (selectedJob && selectedCompany) {
+      document.getElementById("rounds-section").classList.remove("hidden");
+    }
+  }
+
+  // ─── Resume upload ─────────────────────────────────────────
+  async function handleResumeUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const alertEl = document.getElementById("alert-resume");
+    hideAlert(alertEl);
+
+    if (!file.name.endsWith(".pdf")) {
+      showAlert(alertEl, "Only PDF files are accepted.", "error");
+      return;
+    }
+
+    const sid = getSession("session_id");
+    const formData = new FormData();
+    formData.append("resume", file);
+    formData.append("session_id", sid);
+
+    const zone = document.getElementById("upload-zone");
+    zone.innerHTML = '<div class="spinner"></div><p style="margin-top:8px;">Extracting text...</p>';
+
+    try {
+      const { ok, data } = await apiFetch("/resume/upload", {
+        method: "POST",
+        formData
+      });
+
+      if (ok) {
+        showAlert(alertEl, "Resume uploaded and parsed successfully!", "success");
+
+        document.getElementById("upload-zone").style.display = "none";
+        document.getElementById("resume-status").classList.remove("hidden");
+        document.getElementById("resume-filename").textContent = file.name;
+        document.getElementById("resume-preview").textContent = data.preview;
+
+        setSession("resume_uploaded", true);
+      } else {
+        zone.innerHTML = '<div class="upload-icon">📄</div><h3>Click to upload PDF</h3>';
+        showAlert(alertEl, data.error || "Upload failed.", "error");
+      }
+    } catch (err) {
+      zone.innerHTML = '<div class="upload-icon">📄</div><h3>Click to upload PDF</h3>';
+      showAlert(alertEl, "Server error. Is the backend running?", "error");
+    }
+  }
+
+  function togglePreview() {
+    const p = document.getElementById("resume-preview");
+    p.classList.toggle("hidden");
+  }
+
+  // ─── Round navigation ──────────────────────────────────────
+  function startRound(round) {
+    if (!selectedJob || !selectedCompany) {
+      alert("Please select a job role and company first.");
+      return;
+    }
+    saveSetup();
+    const pages = { aptitude: "aptitude.html", coding: "coding.html", interview: "interview.html" };
+    window.location.href = pages[round];
+  }
+
+  function unlockRound(round) {
+    const el = document.getElementById(`round-${round}`);
+    if (el) {
+      el.style.opacity = "1";
+      el.style.pointerEvents = "auto";
+      el.onclick = () => startRound(round);
+    }
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".dropdown-wrap")) {
+      document.getElementById("job-dropdown").classList.add("hidden");
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InterviewAI — Sign In</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Login-page-specific styles */
+    .login-wrap {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* Left panel — branding */
+    .login-brand {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px;
+      background: linear-gradient(135deg, #0d1420 0%, #111827 100%);
+      border-right: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-brand::before {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .brand-logo {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--amber);
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .brand-tagline {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 48px;
+      line-height: 1.6;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--amber-glow);
+      border: 1px solid var(--amber-dim);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .feature-text strong {
+      display: block;
+      color: var(--text-primary);
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    /* Right panel — form */
+    .login-form-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px;
+    }
+
+    .login-form-box {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .login-form-box h2 {
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+    }
+
+    .login-form-box .sub {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-bottom: 36px;
+    }
+
+    .hint-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .hint-badge code {
+      color: var(--amber);
+      background: var(--amber-glow);
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+    }
+
+    .input-icon-wrap {
+      position: relative;
+    }
+
+    .input-icon-wrap .input { padding-left: 42px; }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .login-wrap { grid-template-columns: 1fr; }
+      .login-brand { display: none; }
+      .login-form-panel { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="login-wrap">
+
+    <!-- ─── Left: Branding ────────────────────────────────── -->
+    <div class="login-brand">
+      <div class="brand-logo">InterviewAI</div>
+      <p class="brand-tagline">
+        Your AI-powered interview preparation platform.<br>
+        Practice. Improve. Get hired.
+      </p>
+
+      <ul class="feature-list">
+        <li class="feature-item">
+          <span class="feature-icon">📄</span>
+          <div class="feature-text">
+            <strong>Resume Analysis</strong>
+            Upload your PDF and let AI tailor your prep
+          </div>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon">🧠</span>
+          <div class="feature-text">
+            <strong>Adaptive Aptitude Test</strong>
+            15 curated questions with AI-generated practice
+          </div>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon">💻</span>
+          <div class="feature-text">
+            <strong>Live Coding Round</strong>
+            Real problems with instant AI code review
+          </div>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon">🎙</span>
+          <div class="feature-text">
+            <strong>Voice Mock Interview</strong>
+            Talk to an AI interviewer using your microphone
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ─── Right: Form ───────────────────────────────────── -->
+    <div class="login-form-panel">
+      <div class="login-form-box fade-in">
+        <h2>Welcome back</h2>
+        <p class="sub">Sign in to start your interview session</p>
+
+        <!-- Demo credentials hint -->
+        <div class="hint-badge">
+          🔑 Demo: <code>person</code> / <code>123</code>
+        </div>
+
+        <!-- Error alert -->
+        <div id="error-alert" class="alert alert-error hidden"></div>
+
+        <!-- Username -->
+        <div class="form-group">
+          <label class="form-label" for="username">Username</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">👤</span>
+            <input
+              id="username"
+              class="input"
+              type="text"
+              placeholder="Enter username"
+              autocomplete="username"
+            />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">🔒</span>
+            <input
+              id="password"
+              class="input"
+              type="password"
+              placeholder="Enter password"
+              autocomplete="current-password"
+            />
+          </div>
+        </div>
+
+        <button id="login-btn" class="btn btn-primary btn-full btn-lg" onclick="handleLogin()">
+          Sign In →
+        </button>
+
+        <p style="text-align:center; margin-top:20px; font-size:11px; color:var(--text-muted);">
+          AI Interview Simulator v1.0 · Powered by Groq
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  // Allow Enter key to submit
+  document.getElementById("password").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handleLogin();
+  });
+
+  async function handleLogin() {
+    const btn = document.getElementById("login-btn");
+    const errorAlert = document.getElementById("error-alert");
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    hideAlert(errorAlert);
+
+    if (!username || !password) {
+      showAlert(errorAlert, "Please enter username and password.", "error");
+      return;
+    }
+
+    setButtonLoading(btn, true);
+
+    try {
+      const { ok, data } = await apiFetch("/login", {
+        method: "POST",
+        body: { username, password }
+      });
+
+      if (ok && data.success) {
+        setSession("session_id", data.session_id);
+        window.location.href = "dashboard.html";
+      } else {
+        showAlert(errorAlert, data.error || "Invalid credentials. Try again.", "error");
+      }
+    } catch (err) {
+      showAlert(errorAlert, "Cannot connect to backend. Is the server running?", "error");
+    } finally {
+      setButtonLoading(btn, false);
+    }
+  }
+</script>
+</body>
+</html>

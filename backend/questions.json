@@ -1,0 +1,129 @@
+{
+  "questions": [
+    {
+      "question": "What is the time complexity of binary search?",
+      "options": ["O(n)", "O(log n)", "O(n²)", "O(1)"],
+      "answer": "O(log n)"
+    },
+    {
+      "question": "Which data structure uses LIFO ordering?",
+      "options": ["Queue", "Stack", "Linked List", "Tree"],
+      "answer": "Stack"
+    },
+    {
+      "question": "What does SQL stand for?",
+      "options": ["Structured Query Language", "Simple Query Logic", "Sequential Query Language", "System Query Layer"],
+      "answer": "Structured Query Language"
+    },
+    {
+      "question": "Which sorting algorithm has the best average-case time complexity?",
+      "options": ["Bubble Sort", "Merge Sort", "Insertion Sort", "Selection Sort"],
+      "answer": "Merge Sort"
+    },
+    {
+      "question": "What is the output of 2 ** 10 in Python?",
+      "options": ["20", "1024", "100", "512"],
+      "answer": "1024"
+    },
+    {
+      "question": "Which HTTP method is used to update a resource?",
+      "options": ["GET", "POST", "PUT", "DELETE"],
+      "answer": "PUT"
+    },
+    {
+      "question": "What is a primary key in a database?",
+      "options": ["A key used to encrypt data", "A unique identifier for each record", "The first column of a table", "A foreign key reference"],
+      "answer": "A unique identifier for each record"
+    },
+    {
+      "question": "What does OOP stand for?",
+      "options": ["Object Oriented Programming", "Open Object Protocol", "Operational Output Process", "Ordered Object Pattern"],
+      "answer": "Object Oriented Programming"
+    },
+    {
+      "question": "Which of the following is NOT a Python data type?",
+      "options": ["List", "Tuple", "Array", "Dictionary"],
+      "answer": "Array"
+    },
+    {
+      "question": "What is the purpose of a constructor in OOP?",
+      "options": ["To destroy objects", "To initialize object attributes", "To define class methods", "To inherit from parent classes"],
+      "answer": "To initialize object attributes"
+    },
+    {
+      "question": "In Git, what does 'git pull' do?",
+      "options": ["Pushes local changes to remote", "Fetches and merges remote changes", "Creates a new branch", "Deletes remote branches"],
+      "answer": "Fetches and merges remote changes"
+    },
+    {
+      "question": "What is a RESTful API?",
+      "options": ["A database query language", "An architectural style for web services", "A JavaScript framework", "A type of encryption"],
+      "answer": "An architectural style for web services"
+    },
+    {
+      "question": "Which symbol is used for comments in Python?",
+      "options": ["//", "/* */", "#", "--"],
+      "answer": "#"
+    },
+    {
+      "question": "What does RAM stand for?",
+      "options": ["Read Access Memory", "Random Access Memory", "Rapid Allocation Memory", "Remote Application Module"],
+      "answer": "Random Access Memory"
+    },
+    {
+      "question": "Which of the following is a NoSQL database?",
+      "options": ["MySQL", "PostgreSQL", "MongoDB", "SQLite"],
+      "answer": "MongoDB"
+    },
+    {
+      "question": "What is the difference between == and === in JavaScript?",
+      "options": ["No difference", "=== checks type and value", "== checks type and value", "=== only checks value"],
+      "answer": "=== checks type and value"
+    },
+    {
+      "question": "What is a hash table used for?",
+      "options": ["Sorting data", "Fast key-value lookups", "Traversing graphs", "Balancing trees"],
+      "answer": "Fast key-value lookups"
+    },
+    {
+      "question": "What does CSS stand for?",
+      "options": ["Creative Style Sheets", "Cascading Style Sheets", "Computerized Styling System", "Central Styling Script"],
+      "answer": "Cascading Style Sheets"
+    },
+    {
+      "question": "What is recursion?",
+      "options": ["A loop that runs forever", "A function that calls itself", "A method to sort arrays", "A type of data structure"],
+      "answer": "A function that calls itself"
+    },
+    {
+      "question": "Which protocol is used for secure web browsing?",
+      "options": ["HTTP", "FTP", "HTTPS", "SSH"],
+      "answer": "HTTPS"
+    },
+    {
+      "question": "What is the time complexity of accessing an element in an array by index?",
+      "options": ["O(log n)", "O(n)", "O(1)", "O(n²)"],
+      "answer": "O(1)"
+    },
+    {
+      "question": "What does the 'this' keyword refer to in JavaScript?",
+      "options": ["The parent function", "The global object always", "The current object context", "The previous variable"],
+      "answer": "The current object context"
+    },
+    {
+      "question": "What is polymorphism?",
+      "options": ["Multiple classes with one method", "One interface with multiple implementations", "Multiple inheritance", "Abstract class definition"],
+      "answer": "One interface with multiple implementations"
+    },
+    {
+      "question": "What is a deadlock in operating systems?",
+      "options": ["A program that runs too slowly", "Two processes waiting on each other indefinitely", "A corrupted memory state", "A failed network connection"],
+      "answer": "Two processes waiting on each other indefinitely"
+    },
+    {
+      "question": "Which of the following is a valid way to declare a variable in JavaScript?",
+      "options": ["variable x = 5", "let x = 5", "declare x = 5", "int x = 5"],
+      "answer": "let x = 5"
+    }
+  ]
+}

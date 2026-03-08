@@ -1,0 +1,8 @@
+{
+  "Software Engineer": ["Google", "Amazon", "Microsoft", "Zoho", "TCS", "Infosys", "Flipkart"],
+  "Backend Developer": ["Amazon", "Stripe", "Netflix", "Uber"],
+  "Frontend Developer": ["Meta", "Airbnb", "Shopify", "Figma", "Vercel"],
+  "AI Engineer": ["OpenAI", "Anthropic", "Google DeepMind", "Hugging Face", "Stability AI"],
+  "Data Scientist": ["Netflix", "Spotify", "LinkedIn", "Twitter", "Palantir"],
+  "Machine Learning Engineer": ["Tesla", "NVIDIA", "Apple", "Waymo", "DeepMind"]
+}
