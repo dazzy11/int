@@ -16,7 +16,6 @@
       margin-bottom: 20px;
       transition: border-color 0.2s;
     }
-
     .question-card:hover { border-color: var(--border-bright); }
 
     .question-number {
@@ -36,7 +35,6 @@
       margin-bottom: 16px;
     }
 
-    /* Timer */
     .timer-bar {
       display: flex;
       align-items: center;
@@ -47,7 +45,6 @@
       border-radius: var(--radius);
       margin-bottom: 24px;
     }
-
     .timer-bar .timer-label { font-size: 12px; color: var(--text-muted); }
     .timer-bar .timer-value {
       font-family: var(--font-display);
@@ -56,10 +53,10 @@
       color: var(--amber);
       min-width: 60px;
     }
-
     .timer-bar .timer-value.danger { color: var(--red); animation: flash 0.5s infinite; }
     @keyframes flash { 50% { opacity: 0.3; } }
 
+    /* ── Modal ───────────────────────────────────────── */
     .score-modal {
       position: fixed;
       inset: 0;
@@ -76,40 +73,57 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 40px;
-      max-width: 500px;
+      max-width: 540px;
       width: 100%;
       text-align: center;
       animation: fadeUp 0.3s ease;
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
-    .practice-question-card {
+    /* AI report text box */
+    .report-box {
       background: var(--bg-surface);
-      border: 1px solid var(--border);
+      border: 1px solid var(--amber-dim);
+      border-left: 3px solid var(--amber);
       border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 16px;
+      padding: 16px 18px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
       text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .report-box .report-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+
+    /* Two-option button row */
+    .choice-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 4px;
     }
   </style>
 </head>
 <body>
 <div class="page-wrapper">
 
-  <!-- ─── Navbar ───────────────────────────────────────────── -->
   <nav class="navbar">
-    <a class="nav-brand" href="dashboard.html">
-      <span class="dot"></span> InterviewAI
-    </a>
-    <div class="nav-info">
-      Role: <span id="nav-job">—</span>
-      &nbsp;·&nbsp;
-      <span id="nav-company">—</span>
-    </div>
+    <a class="nav-brand" href="dashboard.html"><span class="dot"></span> InterviewAI</a>
+    <div class="nav-info">Role: <span id="nav-job">—</span> · <span id="nav-company">—</span></div>
   </nav>
 
   <div class="container main">
 
-    <!-- Steps indicator -->
+    <!-- Steps -->
     <div class="steps fade-in">
       <div class="step active"><span class="step-num">1</span> Aptitude</div>
       <div class="step-line"></div>
@@ -118,16 +132,15 @@
       <div class="step"><span class="step-num">3</span> Interview</div>
     </div>
 
-    <!-- Header -->
     <div style="margin-bottom:32px;">
       <p class="section-label">// ROUND 1</p>
       <h2>Aptitude Test</h2>
       <p style="color:var(--text-secondary);font-size:13px;margin-top:6px;">
-        Answer all 15 questions. Score ≥75% to advance to the coding round.
+        Answer all 15 questions. You can move to the next round regardless of your score.
       </p>
     </div>
 
-    <!-- Loading state -->
+    <!-- Loading -->
     <div id="loading-state" style="text-align:center;padding:60px 0;">
       <div class="spinner" style="width:32px;height:32px;margin:0 auto 16px;"></div>
       <p style="color:var(--text-muted);">Loading questions...</p>
@@ -135,17 +148,14 @@
 
     <!-- Test UI -->
     <div id="test-ui" class="hidden">
-
-      <!-- Progress & Timer bar -->
       <div class="timer-bar">
-        <span class="timer-label">Question</span>
-        <span id="q-counter" style="color:var(--text-primary);font-weight:700;">—/15</span>
+        <span class="timer-label">Answered</span>
+        <span id="q-counter" style="color:var(--text-primary);font-weight:700;">0/15</span>
         <div style="flex:1;"></div>
         <span class="timer-label">Time Remaining</span>
         <span class="timer-value" id="timer-display">20:00</span>
       </div>
 
-      <!-- All question cards -->
       <div id="questions-list"></div>
 
       <div style="text-align:right;margin-top:8px;">
@@ -158,51 +168,67 @@
   </div>
 </div>
 
-<!-- ─── Score Modal ──────────────────────────────────────────── -->
+<!-- ── Score Modal ─────────────────────────────────────────────── -->
 <div id="score-modal" class="score-modal hidden">
   <div class="score-modal-box">
-    <div id="score-ring-container"></div>
-    <h2 id="score-heading" style="margin-bottom:8px;"></h2>
-    <p id="score-message" style="color:var(--text-secondary);font-size:14px;margin-bottom:24px;"></p>
 
-    <!-- Actions for pass -->
-    <div id="pass-actions" class="hidden">
+    <!-- Score ring -->
+    <div id="score-ring-container"></div>
+
+    <!-- Heading & sub-line -->
+    <h2 id="score-heading" style="margin-bottom:6px;"></h2>
+    <p id="score-sub" style="color:var(--text-secondary);font-size:13px;margin-bottom:20px;"></p>
+
+    <!-- AI report (shown only when score < 50%) -->
+    <div id="report-section" class="hidden">
+      <div class="report-box">
+        <div class="report-label">🤖 AI Performance Report</div>
+        <div id="report-text">Generating report...</div>
+      </div>
+    </div>
+
+    <!-- Loading spinner while report is generating -->
+    <div id="report-loading" class="hidden" style="padding:16px;text-align:center;">
+      <div class="spinner" style="width:24px;height:24px;margin:0 auto 10px;"></div>
+      <p style="color:var(--text-muted);font-size:12px;">Generating AI performance report...</p>
+    </div>
+
+    <!-- Actions:
+         - Score >= 50% → single "Next Round" button
+         - Score < 50%  → two buttons: Retest | Next Round  -->
+    <div id="actions-good" class="hidden">
       <a href="coding.html" class="btn btn-primary btn-lg btn-full">
         Proceed to Coding Round →
       </a>
     </div>
 
-    <!-- Practice section for fail -->
-    <div id="fail-section" class="hidden">
-      <div class="alert alert-warn" style="margin-bottom:16px;">
-        📚 Here are 10 AI-generated practice questions tailored to your profile:
+    <div id="actions-low" class="hidden">
+      <div class="choice-row">
+        <button class="btn btn-outline btn-lg" onclick="retakeTest()">
+          🔁 Retest
+        </button>
+        <a href="coding.html" class="btn btn-ghost btn-lg" style="text-align:center;">
+          Skip → Coding Round
+        </a>
       </div>
-      <div id="practice-list" style="text-align:left;max-height:400px;overflow-y:auto;"></div>
-      <button class="btn btn-outline btn-full" style="margin-top:16px;" onclick="retakeTest()">
-        Retake Test →
-      </button>
     </div>
 
-    <div id="practice-loading" class="hidden" style="padding:24px;text-align:center;">
-      <div class="spinner" style="width:28px;height:28px;margin:0 auto 12px;"></div>
-      <p style="color:var(--text-muted);font-size:13px;">Generating practice questions with AI...</p>
-    </div>
   </div>
 </div>
 
 <script src="script.js"></script>
 <script>
-  let questions = [];       // Full question list (with answers for scoring)
-  let userAnswers = {};     // { "0": "selected answer" }
+  let questions  = [];
+  let userAnswers = {};
   let timerInterval = null;
-  let secondsLeft = 20 * 60; // 20 minutes
+  let secondsLeft   = 20 * 60;
 
-  // ─── Load questions on page load ──────────────────────────
   window.addEventListener("DOMContentLoaded", async () => {
     requireAuth();
     await loadQuestions();
   });
 
+  // ── Load questions ─────────────────────────────────────────────
   async function loadQuestions() {
     const sid = getSession("session_id");
     try {
@@ -221,13 +247,13 @@
     }
   }
 
-  // ─── Render all question cards ─────────────────────────────
+  // ── Render MCQ cards ───────────────────────────────────────────
   function renderQuestions(qs) {
     const list = document.getElementById("questions-list");
     list.innerHTML = "";
+    const letters = ["A", "B", "C", "D"];
 
     qs.forEach((q, i) => {
-      const letters = ["A", "B", "C", "D"];
       const card = document.createElement("div");
       card.className = "question-card fade-in";
       card.style.animationDelay = `${i * 0.04}s`;
@@ -235,39 +261,35 @@
       card.innerHTML = `
         <div class="question-number">Question ${i + 1} of ${qs.length}</div>
         <div class="question-text">${q.question}</div>
-        <div class="options" id="opts-${i}">
+        <div id="opts-${i}">
           ${q.options.map((opt, j) => `
-            <div class="option-card" id="opt-${i}-${j}" onclick="selectAnswer(${i}, '${opt.replace(/'/g, "\\'")}', ${j})">
+            <div class="option-card" id="opt-${i}-${j}"
+                 onclick="selectAnswer(${i}, '${opt.replace(/'/g, "\\'")}', ${j})">
               <span class="option-letter">${letters[j]}</span>
               <span>${opt}</span>
-            </div>
-          `).join("")}
+            </div>`).join("")}
         </div>`;
-
       list.appendChild(card);
     });
-
     updateCounter();
   }
 
-  // ─── Select an answer ──────────────────────────────────────
+  // ── Answer selection ───────────────────────────────────────────
   function selectAnswer(qIdx, answer, optIdx) {
-    // Deselect all options for this question
     questions[qIdx].options.forEach((_, j) => {
       document.getElementById(`opt-${qIdx}-${j}`)?.classList.remove("selected");
     });
-    // Select chosen
     document.getElementById(`opt-${qIdx}-${optIdx}`)?.classList.add("selected");
     userAnswers[String(qIdx)] = answer;
     updateCounter();
   }
 
   function updateCounter() {
-    const answered = Object.keys(userAnswers).length;
-    document.getElementById("q-counter").textContent = `${answered}/15 answered`;
+    document.getElementById("q-counter").textContent =
+      `${Object.keys(userAnswers).length}/15 answered`;
   }
 
-  // ─── Timer ─────────────────────────────────────────────────
+  // ── Timer ──────────────────────────────────────────────────────
   function startTimer() {
     timerInterval = setInterval(() => {
       secondsLeft--;
@@ -280,7 +302,7 @@
     }, 1000);
   }
 
-  // ─── Submit test ───────────────────────────────────────────
+  // ── Submit ─────────────────────────────────────────────────────
   async function submitTest() {
     clearInterval(timerInterval);
     const btn = document.getElementById("submit-btn");
@@ -300,59 +322,51 @@
     }
   }
 
-  // ─── Show results modal ────────────────────────────────────
+  // ── Results modal ──────────────────────────────────────────────
   function showResults(data) {
-    const { result, practice_questions } = data;
-    const modal = document.getElementById("score-modal");
-    modal.classList.remove("hidden");
+    const { result, performance_report } = data;
+    document.getElementById("score-modal").classList.remove("hidden");
 
-    // Draw score ring
+    // Score ring
     const container = document.getElementById("score-ring-container");
     container.innerHTML = buildScoreRing();
-    setTimeout(() => animateRing(container.querySelector(".score-ring"), result.percentage), 100);
+    setTimeout(() => animateRing(container.querySelector(".score-ring"), result.percentage), 120);
 
+    // Heading
     document.getElementById("score-heading").textContent =
-      result.passed ? "🎉 Round Passed!" : "📊 Keep Practicing";
+      result.needs_report ? "📊 Room for Improvement" : "✅ Good Performance!";
 
-    document.getElementById("score-message").textContent =
-      `You got ${result.correct}/${result.total} correct (${result.percentage}%)`;
+    document.getElementById("score-sub").textContent =
+      `You got ${result.correct} / ${result.total} correct (${result.percentage}%)`;
 
-    if (result.passed) {
-      setSession("aptitude_passed", true);
-      document.getElementById("pass-actions").classList.remove("hidden");
-    } else {
-      document.getElementById("fail-section").classList.remove("hidden");
-      if (practice_questions) {
-        renderPracticeQuestions(practice_questions);
+    if (result.needs_report) {
+      // Show report section
+      document.getElementById("report-section").classList.remove("hidden");
+
+      if (performance_report) {
+        document.getElementById("report-text").textContent = performance_report;
       } else {
-        document.getElementById("practice-loading").classList.remove("hidden");
+        // Report is still loading (backend failed silently)
+        document.getElementById("report-loading").classList.remove("hidden");
+        document.getElementById("report-text").textContent = "";
       }
+
+      document.getElementById("actions-low").classList.remove("hidden");
+    } else {
+      setSession("aptitude_passed", true);
+      document.getElementById("actions-good").classList.remove("hidden");
     }
-  }
-
-  function renderPracticeQuestions(qs) {
-    document.getElementById("practice-loading").classList.add("hidden");
-    const list = document.getElementById("practice-list");
-    const letters = ["A", "B", "C", "D"];
-
-    qs.forEach((q, i) => {
-      const card = document.createElement("div");
-      card.className = "practice-question-card";
-      card.innerHTML = `
-        <div style="font-size:11px;color:var(--amber);font-weight:700;margin-bottom:6px;">Practice Q${i+1}</div>
-        <div style="font-weight:600;margin-bottom:10px;">${q.question}</div>
-        ${q.options.map((opt, j) => `
-          <div style="display:flex;gap:8px;font-size:12px;margin-bottom:4px;">
-            <span style="color:var(--text-muted)">${letters[j]}.</span>
-            <span style="${opt === q.answer ? 'color:var(--green);font-weight:700;' : ''}">${opt} ${opt === q.answer ? '✓' : ''}</span>
-          </div>`).join("")}`;
-      list.appendChild(card);
-    });
   }
 
   function retakeTest() {
     document.getElementById("score-modal").classList.add("hidden");
-    userAnswers = {};
+    userAnswers   = {};
+    secondsLeft   = 20 * 60;
+    document.getElementById("test-ui").classList.add("hidden");
+    document.getElementById("loading-state").classList.remove("hidden");
+    document.getElementById("loading-state").innerHTML = `
+      <div class="spinner" style="width:32px;height:32px;margin:0 auto 16px;"></div>
+      <p style="color:var(--text-muted);">Loading new questions...</p>`;
     loadQuestions();
   }
 </script>

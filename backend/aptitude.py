@@ -4,7 +4,8 @@ Handles aptitude round logic:
 - Loading questions from JSON
 - Randomly selecting 15 questions
 - Scoring submitted answers
-- Calling the LLM (via Groq) to generate practice questions when score is low
+- Calling the LLM to generate a SHORT performance report when score < 50%
+  (no hard block — user always gets the option to retest OR move on)
 """
 
 import json
@@ -23,24 +24,26 @@ with open(os.path.join(os.path.dirname(__file__), "questions.json"), "r") as f:
 def get_random_questions(count: int = 15) -> list:
     """
     Randomly select 'count' questions from the question bank.
-    Returns a list of question dicts (without leaking the answer to the client).
     """
-    selected = random.sample(QUESTION_BANK, min(count, len(QUESTION_BANK)))
-    return selected
+    return random.sample(QUESTION_BANK, min(count, len(QUESTION_BANK)))
 
 
 def calculate_score(questions: list, user_answers: dict) -> dict:
     """
     Compare user answers against correct answers.
-    user_answers: { "0": "selected option", "1": "selected option", ... }
-    Returns a dict with score, correct_count, total, and percentage.
+    user_answers: { "0": "selected option text", "1": "...", ... }
+
+    Returns:
+        correct     – number of correct answers
+        total       – total questions
+        percentage  – rounded score percentage
+        needs_report – True when percentage < 50 (triggers AI report, but does NOT block)
     """
     correct = 0
     total = len(questions)
 
     for i, q in enumerate(questions):
-        user_ans = user_answers.get(str(i), "").strip()
-        if user_ans == q["answer"]:
+        if user_answers.get(str(i), "").strip() == q["answer"]:
             correct += 1
 
     percentage = round((correct / total) * 100, 1) if total > 0 else 0
@@ -49,49 +52,42 @@ def calculate_score(questions: list, user_answers: dict) -> dict:
         "correct": correct,
         "total": total,
         "percentage": percentage,
-        "passed": percentage >= 75
+        "needs_report": percentage < 50,   # soft flag — no hard block
     }
 
 
-def generate_practice_questions(resume_text: str, job_role: str) -> list:
+def generate_performance_report(
+    resume_text: str,
+    job_role: str,
+    correct: int,
+    total: int,
+    percentage: float,
+) -> str:
     """
-    Call the Groq LLM to generate 10 new practice aptitude questions
-    tailored to the user's resume and job role.
-    Returns a list of question dicts.
+    Ask the LLM for a SHORT (3-5 sentence) performance report.
+    Highlights weak areas and gives 2-3 actionable study tips.
+    Returns plain text (not JSON).
     """
     client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-    prompt = f"""You are an expert technical recruiter creating aptitude test questions.
+    prompt = f"""You are a friendly technical career coach reviewing an aptitude test result.
 
-Resume Summary: {resume_text[:500] if resume_text else "Not provided"}
-Target Job Role: {job_role}
+Candidate details:
+- Target role : {job_role}
+- Resume snippet: {resume_text[:300] if resume_text else "Not provided"}
 
-Generate exactly 10 aptitude/technical questions relevant to this job role.
-Return ONLY a valid JSON object in this exact format, no extra text:
+Test result: {correct} correct out of {total} ({percentage}%)
 
-{{
-  "questions": [
-    {{
-      "question": "Question text here",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
-      "answer": "Correct option text here"
-    }}
-  ]
-}}"""
+Write a SHORT performance report (3-5 sentences max).
+- Identify likely weak areas based on the score and role.
+- Give 2-3 specific, actionable study tips.
+- Keep the tone encouraging but honest.
+- Do NOT use bullet points or markdown — plain paragraph text only."""
 
     response = client.chat.completions.create(
         model="meta-llama/llama-4-scout-17b-16e-instruct",
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.7
+        temperature=0.6,
     )
 
-    raw = response.choices[0].message.content.strip()
-
-    # Strip markdown code fences if present
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-
-    data = json.loads(raw)
-    return data.get("questions", [])
+    return response.choices[0].message.content.strip()

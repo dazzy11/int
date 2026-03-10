@@ -15,11 +15,7 @@
   <style>
     .main { padding: 48px 0; }
 
-    .problem-tab-bar {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
+    .problem-tab-bar { display: flex; gap: 8px; margin-bottom: 24px; }
 
     .problem-tab {
       padding: 8px 20px;
@@ -30,12 +26,7 @@
       font-size: 13px;
       transition: all 0.15s;
     }
-
-    .problem-tab.active {
-      border-color: var(--amber);
-      color: var(--amber);
-      background: var(--amber-glow);
-    }
+    .problem-tab.active { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
 
     .split-layout {
       display: grid;
@@ -43,10 +34,7 @@
       gap: 20px;
       align-items: start;
     }
-
-    @media (max-width: 768px) {
-      .split-layout { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 768px) { .split-layout { grid-template-columns: 1fr; } }
 
     /* CodeMirror overrides */
     .CodeMirror {
@@ -69,14 +57,7 @@
       font-size: 12px;
       color: var(--text-muted);
     }
-
-    .editor-lang {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--amber);
-      font-weight: 700;
-    }
+    .editor-lang { display: flex; align-items: center; gap: 6px; color: var(--amber); font-weight: 700; }
 
     .output-box {
       background: #0d1117;
@@ -90,7 +71,6 @@
       color: #7ee787;
       margin-top: 12px;
     }
-
     .output-box.error { color: #f47067; }
     .output-box.empty { color: var(--text-muted); }
 
@@ -106,20 +86,46 @@
       margin-bottom: 16px;
     }
 
-    .eval-result {
-      margin-top: 16px;
-      padding: 20px;
-      background: var(--bg-surface);
+    .btn-row { display: flex; gap: 10px; margin-top: 12px; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; padding: 24px;
+    }
+    .modal-box {
+      background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      animation: fadeUp 0.3s ease;
+      border-radius: 12px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      animation: fadeUp .3s ease;
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 12px;
+    .report-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--amber-dim);
+      border-left: 3px solid var(--amber);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      text-align: left;
+      margin-bottom: 20px;
     }
+    .report-box .report-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--amber); margin-bottom: 8px;
+    }
+
+    .choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -130,19 +136,22 @@
   </nav>
 
   <div class="container-wide main">
+    <div style="padding: 0 24px;">
 
-    <!-- Steps -->
-    <div class="steps fade-in" style="padding:0 24px;">
-      <div class="step done"><span class="step-num">✓</span> Aptitude</div>
-      <div class="step-line"></div>
-      <div class="step active"><span class="step-num">2</span> Coding</div>
-      <div class="step-line"></div>
-      <div class="step"><span class="step-num">3</span> Interview</div>
-    </div>
+      <!-- Steps -->
+      <div class="steps fade-in">
+        <div class="step done"><span class="step-num">✓</span> Aptitude</div>
+        <div class="step-line"></div>
+        <div class="step active"><span class="step-num">2</span> Coding</div>
+        <div class="step-line"></div>
+        <div class="step"><span class="step-num">3</span> Interview</div>
+      </div>
 
-    <div style="padding:32px 24px 0;">
       <p class="section-label">// ROUND 2</p>
-      <h2 style="margin-bottom:24px;">Coding Round</h2>
+      <h2 style="margin-bottom:6px;">Coding Round</h2>
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:24px;">
+        Solve the problems below. Run your code to test it, then submit for AI evaluation.
+      </p>
 
       <!-- Loading -->
       <div id="loading-state" style="text-align:center;padding:60px 0;">
@@ -150,222 +159,262 @@
         <p style="color:var(--text-muted);">Loading problems...</p>
       </div>
 
-      <!-- Problem tabs -->
+      <!-- Coding UI -->
       <div id="coding-ui" class="hidden">
         <div class="problem-tab-bar" id="tab-bar"></div>
 
         <div class="split-layout">
 
-          <!-- Left: Problem + Output -->
+          <!-- Left: Description + Output -->
           <div>
             <div class="section-label" style="margin-bottom:8px;">Problem Description</div>
             <div class="problem-desc" id="problem-desc"></div>
 
-            <!-- Output -->
             <div class="section-label" style="margin-bottom:8px;">Output</div>
             <div class="output-box empty" id="output-box">// Run your code to see output</div>
-
-            <!-- Eval result -->
-            <div id="eval-result" class="hidden"></div>
           </div>
 
-          <!-- Right: Editor + Controls -->
+          <!-- Right: Editor + Buttons -->
           <div>
             <div class="section-label" style="margin-bottom:8px;">Code Editor</div>
-
             <div class="editor-header">
               <div class="editor-lang">🐍 Python</div>
-              <span>CodeMirror · Dracula Theme</span>
+              <span>CodeMirror · Dracula</span>
             </div>
+            <!-- CodeMirror will replace this textarea -->
             <textarea id="code-editor"></textarea>
 
             <div class="btn-row">
               <button class="btn btn-ghost" id="run-btn" onclick="runCode()">▶ Run Code</button>
               <button class="btn btn-primary" id="submit-btn" onclick="submitCode()">Submit →</button>
             </div>
-
             <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">
-              Code executes on the backend. Max 10s runtime.
+              Code runs on backend · 10 s timeout · Python only
             </p>
           </div>
 
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
-<!-- Score Modal -->
-<div id="score-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:200;padding:24px;">
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:40px;max-width:480px;width:100%;text-align:center;animation:fadeUp .3s ease;">
+<!-- ── Score Modal ─────────────────────────────────────────────── -->
+<div id="score-modal" class="modal-overlay hidden">
+  <div class="modal-box">
     <div id="modal-ring"></div>
     <h2 id="modal-heading" style="margin-bottom:8px;"></h2>
-    <p id="modal-feedback" style="color:var(--text-secondary);font-size:13px;margin-bottom:24px;text-align:left;"></p>
-    <div id="modal-actions"></div>
+    <p id="modal-sub" style="color:var(--text-secondary);font-size:13px;margin-bottom:20px;"></p>
+
+    <!-- Feedback from LLM (always shown) -->
+    <div class="report-box" id="feedback-box" style="display:none;">
+      <div class="report-label">🤖 AI Code Review</div>
+      <div id="modal-feedback" style="color:var(--text-secondary);font-size:13px;line-height:1.7;"></div>
+    </div>
+
+    <!-- Good score → single proceed button -->
+    <div id="actions-good" class="hidden">
+      <a href="interview.html" class="btn btn-primary btn-lg btn-full">
+        Proceed to Mock Interview →
+      </a>
+    </div>
+
+    <!-- Low score → two options -->
+    <div id="actions-low" class="hidden">
+      <div class="choice-row">
+        <button class="btn btn-outline btn-lg" onclick="retryCode()">
+          🔁 Try Again
+        </button>
+        <a href="interview.html" class="btn btn-ghost btn-lg" style="text-align:center;">
+          Skip → Interview
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 
 <script src="script.js"></script>
 <script>
-  let problems = [];
+  let problems        = [];
   let activeProblemIdx = 0;
-  let editors = []; // CodeMirror instances per problem
+  let cmEditor        = null;   // single CodeMirror instance
 
   window.addEventListener("DOMContentLoaded", async () => {
     requireAuth();
     await loadProblems();
   });
 
+  // ── Load problems ──────────────────────────────────────────────
   async function loadProblems() {
     const sid = getSession("session_id");
     try {
       const { ok, data } = await apiFetch(`/coding/problems?session_id=${sid}`);
-      if (!ok) throw new Error(data.error);
+      if (!ok) throw new Error(data.error || "Failed to fetch problems");
       problems = data.problems;
       setupUI();
     } catch (e) {
       document.getElementById("loading-state").innerHTML =
-        `<p style="color:var(--red);">Failed: ${e.message}</p>`;
+        `<p style="color:var(--red);">Failed to load: ${e.message}</p>`;
     }
   }
 
+  // ── Build tabs + initialise CodeMirror ─────────────────────────
   function setupUI() {
     document.getElementById("loading-state").classList.add("hidden");
     document.getElementById("coding-ui").classList.remove("hidden");
 
+    // Build tabs
     const tabBar = document.getElementById("tab-bar");
     tabBar.innerHTML = "";
-
     problems.forEach((p, i) => {
       const tab = document.createElement("div");
       tab.className = "problem-tab" + (i === 0 ? " active" : "");
-      tab.textContent = `Problem ${i+1}: ${p.title}`;
+      tab.textContent = `Problem ${i + 1}: ${p.title}`;
       tab.onclick = () => switchProblem(i);
       tabBar.appendChild(tab);
     });
 
-    // Init CodeMirror
+    // Init CodeMirror ONCE
     const textarea = document.getElementById("code-editor");
-    const cm = CodeMirror.fromTextArea(textarea, {
-      mode: "python",
-      theme: "dracula",
-      lineNumbers: true,
-      indentUnit: 4,
-      tabSize: 4,
+    cmEditor = CodeMirror.fromTextArea(textarea, {
+      mode:         "python",
+      theme:        "dracula",
+      lineNumbers:  true,
+      indentUnit:   4,
+      tabSize:      4,
       indentWithTabs: false,
       lineWrapping: false,
-      autofocus: true
+      autofocus:    true,
     });
-    editors.push(cm);
 
     switchProblem(0);
   }
 
+  // ── Switch active problem ──────────────────────────────────────
   function switchProblem(idx) {
     activeProblemIdx = idx;
     const p = problems[idx];
 
-    // Update tabs
-    document.querySelectorAll(".problem-tab").forEach((t, i) => {
-      t.classList.toggle("active", i === idx);
-    });
+    document.querySelectorAll(".problem-tab").forEach((t, i) =>
+      t.classList.toggle("active", i === idx)
+    );
 
-    // Update description
     document.getElementById("problem-desc").textContent = p.description;
+    cmEditor.setValue(p.starter_code || "# Write your solution here\n");
+    cmEditor.clearHistory();   // so Ctrl-Z doesn't undo to previous problem
 
-    // Set starter code
-    if (editors[0]) {
-      editors[0].setValue(p.starter_code || "# Write your solution here\n");
-    }
-
-    // Clear output
     const out = document.getElementById("output-box");
     out.textContent = "// Run your code to see output";
-    out.className = "output-box empty";
-    document.getElementById("eval-result").classList.add("hidden");
+    out.className   = "output-box empty";
   }
 
-  function getCode() {
-    return editors[0] ? editors[0].getValue() : "";
-  }
-
+  // ── Run code ───────────────────────────────────────────────────
   async function runCode() {
-    const btn = document.getElementById("run-btn");
-    const out = document.getElementById("output-box");
+    const btn  = document.getElementById("run-btn");
+    const out  = document.getElementById("output-box");
+    const code = cmEditor.getValue();
+
+    if (!code.trim()) {
+      out.textContent = "// Nothing to run — write some code first";
+      out.className   = "output-box empty";
+      return;
+    }
 
     setButtonLoading(btn, true);
     out.textContent = "Running...";
-    out.className = "output-box";
+    out.className   = "output-box";
 
     try {
-      const { data } = await apiFetch("/coding/run", {
+      const { ok, data } = await apiFetch("/coding/run", {
         method: "POST",
-        body: { code: getCode() }
+        body:   { code }
       });
+
+      if (!ok) throw new Error(data.error || "Server error");
 
       if (data.success) {
         out.textContent = data.stdout || "(no output)";
-        out.className = "output-box";
+        out.className   = "output-box";
       } else {
         out.textContent = data.stderr || "Runtime error";
-        out.className = "output-box error";
+        out.className   = "output-box error";
       }
     } catch (e) {
       out.textContent = "Error: " + e.message;
-      out.className = "output-box error";
+      out.className   = "output-box error";
     } finally {
       setButtonLoading(btn, false);
     }
   }
 
+  // ── Submit code ────────────────────────────────────────────────
   async function submitCode() {
-    const btn = document.getElementById("submit-btn");
-    setButtonLoading(btn, true);
+    const btn      = document.getElementById("submit-btn");
+    const code     = cmEditor.getValue();
+    const sid      = getSession("session_id");
+    const problem  = problems[activeProblemIdx];
 
-    const sid = getSession("session_id");
-    const problem = problems[activeProblemIdx];
+    if (!code.trim()) {
+      alert("Please write some code before submitting.");
+      return;
+    }
+
+    setButtonLoading(btn, true);
 
     try {
       const { ok, data } = await apiFetch("/coding/submit", {
         method: "POST",
-        body: {
-          session_id: sid,
-          problem_id: problem.id,
-          code: getCode()
-        }
+        body:   { session_id: sid, problem_id: problem.id, code }
       });
 
-      if (!ok) throw new Error(data.error);
+      if (!ok) throw new Error(data.error || "Evaluation failed");
       showScoreModal(data);
     } catch (e) {
-      alert("Evaluation failed: " + e.message);
+      alert("Submission failed: " + e.message);
     } finally {
       setButtonLoading(btn, false);
     }
   }
 
-  function showScoreModal(data) {
-    const { score, feedback } = data;
+  // ── Score modal ────────────────────────────────────────────────
+  function showScoreModal({ score, feedback }) {
     const modal = document.getElementById("score-modal");
-    modal.style.display = "flex";
+    modal.classList.remove("hidden");
 
+    // Ring
     document.getElementById("modal-ring").innerHTML = buildScoreRing();
-    setTimeout(() => animateRing(document.querySelector(".score-ring"), score), 100);
+    setTimeout(() => animateRing(document.querySelector(".score-ring"), score), 120);
+
+    const passed = score >= 50;
 
     document.getElementById("modal-heading").textContent =
-      score >= 70 ? "✅ Code Evaluated!" : "📝 Needs Improvement";
-    document.getElementById("modal-feedback").textContent = feedback;
+      passed ? "✅ Solution Evaluated!" : "📝 Needs Improvement";
 
-    const actions = document.getElementById("modal-actions");
-    if (score >= 70) {
-      setSession("coding_passed", true);
-      actions.innerHTML = `<a href="interview.html" class="btn btn-primary btn-lg btn-full">Proceed to Mock Interview →</a>`;
-    } else {
-      actions.innerHTML = `
-        <button class="btn btn-outline btn-full" onclick="document.getElementById('score-modal').style.display='none'">
-          Try Again
-        </button>`;
+    document.getElementById("modal-sub").textContent =
+      `AI Score: ${score} / 100`;
+
+    // Always show feedback
+    if (feedback) {
+      document.getElementById("modal-feedback").textContent = feedback;
+      document.getElementById("feedback-box").style.display = "block";
     }
+
+    if (passed) {
+      setSession("coding_passed", true);
+      document.getElementById("actions-good").classList.remove("hidden");
+    } else {
+      document.getElementById("actions-low").classList.remove("hidden");
+    }
+  }
+
+  function retryCode() {
+    document.getElementById("score-modal").classList.add("hidden");
+    // Reset action buttons for next submission
+    document.getElementById("actions-good").classList.add("hidden");
+    document.getElementById("actions-low").classList.add("hidden");
+    document.getElementById("feedback-box").style.display = "none";
+    document.getElementById("modal-ring").innerHTML = "";
   }
 </script>
 </body>

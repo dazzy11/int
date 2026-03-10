@@ -1,129 +1,94 @@
 {
   "questions": [
     {
-      "question": "What is the time complexity of binary search?",
-      "options": ["O(n)", "O(log n)", "O(n²)", "O(1)"],
-      "answer": "O(log n)"
+      "question": "If 'MANGO' is written as 'OGNAM', how is 'APPLE' written?",
+      "options": ["ELPPA", "PPAEL", "ELAPP", "PAEPL"],
+      "answer": "ELPPA",
+      "topic": "General Aptitude"
     },
     {
-      "question": "Which data structure uses LIFO ordering?",
-      "options": ["Queue", "Stack", "Linked List", "Tree"],
-      "answer": "Stack"
+      "question": "Find the next number in the series: 3, 9, 27, 81, ?",
+      "options": ["162", "243", "324", "218"],
+      "answer": "243",
+      "topic": "General Aptitude"
     },
     {
-      "question": "What does SQL stand for?",
-      "options": ["Structured Query Language", "Simple Query Logic", "Sequential Query Language", "System Query Layer"],
-      "answer": "Structured Query Language"
+      "question": "If A = 1, B = 2, ..., Z = 26, what is the value of 'CAB'?",
+      "options": ["6", "5", "7", "4"],
+      "answer": "6",
+      "topic": "General Aptitude"
     },
     {
-      "question": "Which sorting algorithm has the best average-case time complexity?",
-      "options": ["Bubble Sort", "Merge Sort", "Insertion Sort", "Selection Sort"],
-      "answer": "Merge Sort"
+      "question": "Find the odd one out: 8, 27, 64, 125, 150",
+      "options": ["8", "27", "125", "150"],
+      "answer": "150",
+      "topic": "General Aptitude"
     },
     {
-      "question": "What is the output of 2 ** 10 in Python?",
-      "options": ["20", "1024", "100", "512"],
-      "answer": "1024"
+      "question": "If today is Monday, what day will it be after 45 days?",
+      "options": ["Monday", "Tuesday", "Wednesday", "Sunday"],
+      "answer": "Tuesday",
+      "topic": "General Aptitude"
     },
     {
-      "question": "Which HTTP method is used to update a resource?",
-      "options": ["GET", "POST", "PUT", "DELETE"],
-      "answer": "PUT"
+      "question": "What is 25% of 480?",
+      "options": ["100", "110", "120", "140"],
+      "answer": "120",
+      "topic": "Arithmetic Aptitude"
     },
     {
-      "question": "What is a primary key in a database?",
-      "options": ["A key used to encrypt data", "A unique identifier for each record", "The first column of a table", "A foreign key reference"],
-      "answer": "A unique identifier for each record"
+      "question": "The average of 4 numbers is 25. What is their total?",
+      "options": ["100", "90", "110", "95"],
+      "answer": "100",
+      "topic": "Arithmetic Aptitude"
     },
     {
-      "question": "What does OOP stand for?",
-      "options": ["Object Oriented Programming", "Open Object Protocol", "Operational Output Process", "Ordered Object Pattern"],
-      "answer": "Object Oriented Programming"
+      "question": "A number is increased by 20% and becomes 240. What is the original number?",
+      "options": ["200", "180", "210", "220"],
+      "answer": "200",
+      "topic": "Arithmetic Aptitude"
     },
     {
-      "question": "Which of the following is NOT a Python data type?",
-      "options": ["List", "Tuple", "Array", "Dictionary"],
-      "answer": "Array"
+      "question": "If a product costing ₹500 is sold for ₹600, what is the profit percentage?",
+      "options": ["10%", "20%", "25%", "30%"],
+      "answer": "20%",
+      "topic": "Arithmetic Aptitude"
     },
     {
-      "question": "What is the purpose of a constructor in OOP?",
-      "options": ["To destroy objects", "To initialize object attributes", "To define class methods", "To inherit from parent classes"],
-      "answer": "To initialize object attributes"
+      "question": "If A can complete a work in 12 days, how many days will A take to complete half of the work?",
+      "options": ["6 days", "12 days", "24 days", "3 days"],
+      "answer": "6 days",
+      "topic": "Arithmetic Aptitude"
     },
     {
-      "question": "In Git, what does 'git pull' do?",
-      "options": ["Pushes local changes to remote", "Fetches and merges remote changes", "Creates a new branch", "Deletes remote branches"],
-      "answer": "Fetches and merges remote changes"
+      "question": "Study the data: Company A sold 200 units in 2022 and 250 units in 2023. What is the increase in sales?",
+      "options": ["40", "50", "60", "70"],
+      "answer": "50",
+      "topic": "Data Interpretation"
     },
     {
-      "question": "What is a RESTful API?",
-      "options": ["A database query language", "An architectural style for web services", "A JavaScript framework", "A type of encryption"],
-      "answer": "An architectural style for web services"
+      "question": "A store sold 120 laptops in January and 180 in February. What is the total sales?",
+      "options": ["250", "280", "300", "320"],
+      "answer": "300",
+      "topic": "Data Interpretation"
     },
     {
-      "question": "Which symbol is used for comments in Python?",
-      "options": ["//", "/* */", "#", "--"],
-      "answer": "#"
+      "question": "A company's revenue was 500 units in 2021 and 650 units in 2022. What is the increase?",
+      "options": ["120", "130", "140", "150"],
+      "answer": "150",
+      "topic": "Data Interpretation"
     },
     {
-      "question": "What does RAM stand for?",
-      "options": ["Read Access Memory", "Random Access Memory", "Rapid Allocation Memory", "Remote Application Module"],
-      "answer": "Random Access Memory"
+      "question": "In a survey, 40 students like Java and 30 like Python. What is the total number of students surveyed if there is no overlap?",
+      "options": ["60", "65", "70", "75"],
+      "answer": "70",
+      "topic": "Data Interpretation"
     },
     {
-      "question": "Which of the following is a NoSQL database?",
-      "options": ["MySQL", "PostgreSQL", "MongoDB", "SQLite"],
-      "answer": "MongoDB"
-    },
-    {
-      "question": "What is the difference between == and === in JavaScript?",
-      "options": ["No difference", "=== checks type and value", "== checks type and value", "=== only checks value"],
-      "answer": "=== checks type and value"
-    },
-    {
-      "question": "What is a hash table used for?",
-      "options": ["Sorting data", "Fast key-value lookups", "Traversing graphs", "Balancing trees"],
-      "answer": "Fast key-value lookups"
-    },
-    {
-      "question": "What does CSS stand for?",
-      "options": ["Creative Style Sheets", "Cascading Style Sheets", "Computerized Styling System", "Central Styling Script"],
-      "answer": "Cascading Style Sheets"
-    },
-    {
-      "question": "What is recursion?",
-      "options": ["A loop that runs forever", "A function that calls itself", "A method to sort arrays", "A type of data structure"],
-      "answer": "A function that calls itself"
-    },
-    {
-      "question": "Which protocol is used for secure web browsing?",
-      "options": ["HTTP", "FTP", "HTTPS", "SSH"],
-      "answer": "HTTPS"
-    },
-    {
-      "question": "What is the time complexity of accessing an element in an array by index?",
-      "options": ["O(log n)", "O(n)", "O(1)", "O(n²)"],
-      "answer": "O(1)"
-    },
-    {
-      "question": "What does the 'this' keyword refer to in JavaScript?",
-      "options": ["The parent function", "The global object always", "The current object context", "The previous variable"],
-      "answer": "The current object context"
-    },
-    {
-      "question": "What is polymorphism?",
-      "options": ["Multiple classes with one method", "One interface with multiple implementations", "Multiple inheritance", "Abstract class definition"],
-      "answer": "One interface with multiple implementations"
-    },
-    {
-      "question": "What is a deadlock in operating systems?",
-      "options": ["A program that runs too slowly", "Two processes waiting on each other indefinitely", "A corrupted memory state", "A failed network connection"],
-      "answer": "Two processes waiting on each other indefinitely"
-    },
-    {
-      "question": "Which of the following is a valid way to declare a variable in JavaScript?",
-      "options": ["variable x = 5", "let x = 5", "declare x = 5", "int x = 5"],
-      "answer": "let x = 5"
+      "question": "A factory produced 500 items in week 1 and 700 items in week 2. What is the average production?",
+      "options": ["550", "600", "650", "700"],
+      "answer": "600",
+      "topic": "Data Interpretation"
     }
   ]
 }
