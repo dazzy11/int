@@ -412,6 +412,12 @@ def transcribe_audio():
     except Exception as e:
         return jsonify({"error": str(e)}), 500        
 
+
+@app.route('/favicon.ico')
+def favicon():
+    return "", 204
+
+    
 # ─────────────────────────────────────────────
 # ENTRY POINT
 # ─────────────────────────────────────────────
