@@ -373,6 +373,24 @@ def submit_answer():
 
     return jsonify(result)
 
+@app.route("/api/interview/tts", methods=["POST"])
+def text_to_speech():
+    """Convert text to speech and return MP3 file."""
+    try:
+        data = request.json or {}
+        text = data.get("text", "")
+
+        if not text:
+            return jsonify({"error": "No text provided"}), 400
+
+        output_path = os.path.join(UPLOAD_FOLDER, "interviewer_speech.mp3")
+
+        interview_agent.text_to_speech(text, output_path)
+
+        return send_file(output_path, mimetype="audio/mpeg")
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ─────────────────────────────────────────────
 # ENTRY POINT
