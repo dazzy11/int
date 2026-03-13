@@ -145,9 +145,6 @@ Return ONLY a valid JSON object, no extra text:
 
 
 def transcribe_audio(audio_file_path: str) -> str:
-    """
-    Transcribe audio using Groq Whisper
-    """
 
     with open(audio_file_path, "rb") as audio_file:
 

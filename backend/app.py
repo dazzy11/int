@@ -405,6 +405,8 @@ def transcribe_audio():
     audio_file = request.files["audio"]
     path = os.path.join(UPLOAD_FOLDER, f"{sid}_audio.webm")
     audio_file.save(path)
+    print("Audio saved at:", path)
+    print("Audio size:", os.path.getsize(path))
 
     try:
         text = interview_agent.transcribe_audio(path)
@@ -417,7 +419,7 @@ def transcribe_audio():
 def favicon():
     return "", 204
 
-    
+
 # ─────────────────────────────────────────────
 # ENTRY POINT
 # ─────────────────────────────────────────────
