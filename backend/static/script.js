@@ -111,21 +111,21 @@ function buildScoreRing() {
 
 /** Play text-to-speech audio from the backend */
 async function playTTS(text) {
-  try {
-    const res = await fetch(API_BASE + "/interview/tts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-    audio.play();
-    return audio;
-  } catch (e) {
-    console.warn("TTS failed:", e);
-    return null;
+  const res = await fetch("/api/interview/tts", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({text})
+  });
+
+  if (!res.ok) {
+    console.error("TTS error:", await res.text());
+    return;
   }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const audio = new Audio(url);
+  await audio.play();
 }
 
 // ─── Auto-init nav info ───────────────────────────────────────────────────────
