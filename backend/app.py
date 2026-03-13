@@ -392,6 +392,26 @@ def text_to_speech():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/interview/transcribe", methods=["POST"])
+def transcribe_audio():
+    """Transcribe uploaded audio file with Whisper."""
+    sid = request.form.get("session_id")
+    if not sid or sid not in sessions:
+        return jsonify({"error": "Invalid session"}), 403
+
+    if "audio" not in request.files:
+        return jsonify({"error": "No audio file"}), 400
+
+    audio_file = request.files["audio"]
+    path = os.path.join(UPLOAD_FOLDER, f"{sid}_audio.webm")
+    audio_file.save(path)
+
+    try:
+        text = interview_agent.transcribe_audio(path)
+        return jsonify({"text": text})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500        
+
 # ─────────────────────────────────────────────
 # ENTRY POINT
 # ─────────────────────────────────────────────
