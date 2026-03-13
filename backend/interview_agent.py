@@ -146,15 +146,16 @@ Return ONLY a valid JSON object, no extra text:
 
 def transcribe_audio(audio_file_path: str) -> str:
     """
-    Transcribe an audio file using Groq's Whisper implementation.
-    Returns the transcribed text string.
+    Transcribe audio using Groq Whisper
     """
-    with open(audio_file_path, "rb") as f:
+
+    with open(audio_file_path, "rb") as audio_file:
+
         transcription = client.audio.transcriptions.create(
-            file=(os.path.basename(audio_file_path), f.read()),
-            model="whisper-large-v3-turbo",
-            temperature=0
+            file=audio_file,
+            model="whisper-large-v3"
         )
+
     return transcription.text
 
 
