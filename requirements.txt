@@ -3,3 +3,4 @@ flask-cors==4.0.1
 groq==0.9.0
 PyMuPDF==1.24.5
 gtts==2.5.1
+gunicorn
