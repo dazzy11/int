@@ -25,7 +25,7 @@ function getSession(key) {
 function requireAuth() {
   const sid = getSession("session_id");
   if (!sid) {
-    window.location.href = "login.html";
+    window.location.href = "/login";
     return null;
   }
   return sid;
